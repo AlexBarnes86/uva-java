@@ -82,11 +82,15 @@ public class Problem101 {
 		Block A = find(list, a);
 		Block B = find(list, b);
 		
+		if(A.below(B)) {
+			return;
+		}
+		
 		clearAbove(list, A);
 		clearAbove(list, B);
 		
 		if(A.prev != null)
-			A.prev.next = null;
+			A.prev.next = A.next;
 		else
 			list.set(A.id, null);
 		
@@ -100,6 +104,11 @@ public class Problem101 {
 		//System.out.println("DEBUG: Move " + a + " over " + b);
 		Block A = find(list, a);
 		Block B = find(list, b);
+		
+		if(A.below(B)) {
+			return;
+		}
+		
 		clearAbove(list, A);
 		while(B.next != null) {
 			B = B.next;
