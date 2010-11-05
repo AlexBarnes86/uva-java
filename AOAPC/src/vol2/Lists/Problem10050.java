@@ -1,52 +1,31 @@
 package vol2.Lists;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-public class Problem10050 {
-	public static String getday(int d) {
-		switch(d) {
-		case 0: return "Sunday";
-		case 1: return "Monday";
-		case 2: return "Tuesday";
-		case 3: return "Wednesday";
-		case 4: return "Thursday";
-		case 5: return "Friday";
-		case 6: return "Saturday";
-		}
-		return null;
-	}
-	
+public class Problem10050 {	
 	public static void main(String[] args) throws Exception {
-		//BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		BufferedReader br = new BufferedReader(new FileReader("input/vol2/Problem10050.in"));
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		//BufferedReader br = new BufferedReader(new FileReader("input/vol2/Problem10050.in"));
 
 		int T = Integer.parseInt(br.readLine().trim());
 		for(int i = 0; i < T; ++i) {
-			int days = Integer.parseInt(br.readLine().trim());
+			int D = Integer.parseInt(br.readLine().trim());
 			int P = Integer.parseInt(br.readLine().trim());
 			
-			ArrayList<Integer> parties = new ArrayList<Integer>();
-			for(int j = 0; j < P; ++j) {
-				parties.add(Integer.parseInt(br.readLine().trim()));
-			}
-			
+			boolean [] days = new boolean[D];
 			int hartals = 0;
-			for(int d = 1; d <= days; ++d) {
-				System.out.print(d + " " + getday(d%7) + ": ");
-				if(d % 7 == 5) { //skip fridays
-					System.out.println();
-					continue;
-				}
-				for(int p = 0; p < P; ++p) {
-					if(d % parties.get(p) == 0) {
-						System.out.print("hartal from " + p + " (" + parties.get(p) + ")");
+			for(int j = 0; j < P; ++j) {
+				int inc = Integer.parseInt(br.readLine());
+				for(int d = inc-1; d < D; d+=inc) {
+					if(d%7 == 5 || d%7 == 6)
+						continue;
+					if(days[d] == false)
 						hartals++;
-						break;
-					}
+					days[d] = true;
 				}
-				System.out.println();
 			}
 			
 			System.out.println(hartals);
