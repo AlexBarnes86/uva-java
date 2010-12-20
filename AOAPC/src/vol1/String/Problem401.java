@@ -1,4 +1,3 @@
-//correct
 package vol1.String;
 
 import java.util.*;
