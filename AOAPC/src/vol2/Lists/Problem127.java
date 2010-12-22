@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Collections;
 
 public class Problem127 {
@@ -15,6 +15,7 @@ public class Problem127 {
 	static class Card {
 		private int suite;
 		private int value;
+		public Card left, right, below;
 		
 		public Card(String val) {
 			switch(val.charAt(0)) { //value
@@ -69,63 +70,212 @@ public class Problem127 {
 		public boolean sameSuiteOrValue(Card c) {
 			return sameSuite(c) || sameValue(c);
 		}
+		
+		public String toString() {
+			String ret = "";
+			switch(value) {
+			case 2: case 3 : case 4: case 5: case 6: case 7: case 8: case 9:
+				ret += value;
+				break;
+			case 1:
+				ret += "A";
+				break;
+			case 10:
+				ret += "T";
+				break;
+			case 11:
+				ret += "J";
+				break;
+			case 12:
+				ret += "Q";
+				break;
+			case 13:
+				ret += "K";
+				break;
+			}
+			switch(suite) {
+			case HEARTS:
+				ret += "H";
+				break;
+			case CLUBS:
+				ret += "C";
+				break;
+			case DIAMONDS:
+				ret += "D";
+				break;
+			case SPADES:
+				ret += "S";
+				break;
+			}
+			return ret;
+		}
 	}
 	
-	public static void placeCard(ArrayList<ArrayList<Card>> tableau, int pos) {
-		ArrayList<Card> stack = tableau.get(pos);
-		Card topCard = stack.get(stack.size()-1);
+	static class Tableau {
+		//first and last refer to top card in the first and last stacks
+		private Card first, last;
 		
-		if(pos - 3 >= 0) {
-			ArrayList<Card> leftStack = tableau.get(pos-3);
-			Card topLeftCard = leftStack.get(leftStack.size()-1);
-			if(topCard.sameSuiteOrValue(topLeftCard)) {
-				leftStack.add(topCard);
-				stack.remove(stack.size()-1);
-				if(stack.isEmpty())
-					tableau.remove(pos);
-				placeCard(tableau, pos - 3);
-				for(int i = pos - 2; i < tableau.size(); ++i)
-					placeCard(tableau, i);
+		private boolean is3Match(Card c) {
+			return c.left != null && c.left.left != null && c.left.left.left != null && c.sameSuiteOrValue(c.left.left.left);
+		}
+		
+		private boolean is1Match(Card c) {
+			return c.left != null && c.sameSuiteOrValue(c.left);
+		}
+		
+		private void makeLast(Card c) {
+			last.right = c;
+			c.left = last;
+			last = c;
+		}
+		
+		private void join(Card c) {
+			if(c.left != null)
+				c.left.right = c.right;
+			if(c.right != null)
+				c.right.left = c.left;
+		}
+		
+		private void detach(Card c) {
+			if(c.left != null)
+				c.left.right = c.below;
+			if(c.right != null)
+				c.right.left = c.below;
+			c.below.left = c.left;
+			c.below.right = c.right;
+		}
+		
+		private void move3left(Card c) {
+			c.below = c.left.left.left;
+			if(c.below == first)
+				first = c;
+			c.left = c.below.left;
+			c.right = c.below.right;
+			if(c.left != null)
+				c.left.right = c;
+			if(c.right != null)
+				c.right.left = c;
+		}
+		
+		private void move1left(Card c) {
+			c.below = c.left;
+			if(c.below == first)
+				first = c;
+			c.left = c.below.left;
+			c.right = c.below.right;
+			if(c.left != null)
+				c.left.right = c;
+			if(c.right != null)
+				c.right.left = c;
+		}
+		
+		private void placeCard(Card c) {
+			if(c == null)
 				return;
+			
+			if(is3Match(c)) {
+				if(c.below == null) { //if stack is empty join left and right stacks
+					if(last == c)
+						last = last.left;
+					join(c);
+				}
+				else { //else make card below top of stack
+					if(last == c)
+						last = last.below;
+					detach(c);
+				}
+				
+				move3left(c);
+				
+				placeCard(c);
+				return;
+			} else if(is1Match(c)) {				
+				if(c.below == null) {
+					join(c);
+				}
+				else {
+					if(last == c)
+						last = last.below;
+					detach(c);
+				}
+				
+				move1left(c);
+				
+				placeCard(c);
+				return;
+			}
+			
+			placeCard(c.right);
+		}
+		
+		public void add(Card c) {
+			if(first == null) {
+				first = c;
+				last = c;
+			}
+			else {
+				makeLast(c);
+				placeCard(c);
 			}
 		}
 		
-		if(pos - 1 >= 0) {
-			ArrayList<Card> leftStack = tableau.get(pos-1);
-			Card topLeftCard = leftStack.get(leftStack.size()-1);
-			if(topCard.sameSuiteOrValue(topLeftCard)) {
-				leftStack.add(topCard);
-				stack.remove(stack.size()-1);
-				if(stack.isEmpty())
-					tableau.remove(pos);
-				placeCard(tableau, pos - 1);
-				for(int i = pos; i < tableau.size(); ++i)
-					placeCard(tableau, i);
-				return;
+		private int countStack(Card c) {
+			int sum = 1;
+			Card temp = c;
+			while(temp.below != null) {
+				sum++;
+				temp = temp.below;
+			}
+			return sum;
+		}
+		
+		private void debugStack(Card temp) {
+			while(temp != null) {
+				System.out.print(temp + " ");
+				temp = temp.below;
 			}
 		}
 		
-	}
-	
-	private static ArrayList<ArrayList<Card>> solve(ArrayList<Card> deck) {
-		ArrayList<ArrayList<Card>> tableau = new ArrayList<ArrayList<Card>>();
-		for(Card card : deck) {
-			ArrayList<Card> stack = new ArrayList<Card>();
-			stack.add(card);
-			tableau.add(stack);
-			placeCard(tableau, tableau.size()-1);
+		public void debug() {
+			Card temp = first;
+			while(temp != null) {
+				debugStack(temp);
+				temp = temp.right;
+				System.out.println();
+			}
+			System.out.println("----------");
 		}
-		return tableau;
+		
+		public String toString() {
+			Card temp = first;
+			ArrayList<Integer> stacks = new ArrayList<Integer>();
+			while(temp.right != null) {
+				stacks.add(countStack(temp));
+				temp = temp.right;
+			}
+			stacks.add(countStack(temp));
+			StringBuilder sb = new StringBuilder();
+			sb.append(stacks.size() + " piles remaining: ");
+			for(int i = 0; i < stacks.size(); ++i) {
+				if(i != stacks.size() - 1) {
+					sb.append(stacks.get(i) + " ");
+				}
+				else
+					sb.append(stacks.get(i));
+			}
+			return sb.toString();
+		}
 	}
 	
 	public static void main(String[] args) throws Exception {
+		//long startTime = System.currentTimeMillis();
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		//BufferedReader br = new BufferedReader(new FileReader("input/vol2/Problem127.in"));
 		String line = "";
 		
 		while(true) {
-			ArrayList<String> strings = new ArrayList<String>();
-			ArrayList<Card> deck = new ArrayList<Card>();
+			LinkedList<String> strings = new LinkedList<String>();
+			LinkedList<Card> deck = new LinkedList<Card>();
 			line = br.readLine().trim();
 			if(line.equals("#"))
 				break;
@@ -135,14 +285,15 @@ public class Problem127 {
 			for(String str : strings) {
 				deck.add(new Card(str));
 			}
-			ArrayList<ArrayList<Card>> solution = solve(deck);
-			System.out.print(solution.size() + " piles remaining: ");
-			for(int i = 0; i < solution.size(); ++i) {
-				if(i != solution.size()-1)
-					System.out.print(solution.get(i).size() + " ");
-				else
-					System.out.println(solution.get(i).size());
+			Tableau solution = new Tableau();
+			for(Card c : deck) {
+				//System.out.print("Adding: " + c + " ");
+				solution.add(c);
+				//System.out.println(solution);
+				//solution.debug();
 			}
+			System.out.println(solution);
 		}
+		//System.out.println("Runtime: " + (System.currentTimeMillis() - startTime) + "ms");
 	}
 }
