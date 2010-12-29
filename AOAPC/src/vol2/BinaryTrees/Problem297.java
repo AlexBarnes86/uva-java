@@ -15,6 +15,26 @@ public class Problem297 {
 			type = ch;
 			children = new ArrayList<Node>();
 		}
+		
+		public void add(Node n) {
+			if(n.type == 'f')
+				type = 'f';
+			else if(n.type == 'p' && type != 'f') {
+				if(type == 'p') {
+					for(int i = 0; i < 4; ++i) {
+						children.get(i).add(n.children.get(i));
+					}
+				}
+				else {
+					type = 'p';
+					this.children = n.children;
+				}
+			}
+		}
+		
+		public String toString() {
+			return type + "";
+		}
 	}
 	
 	static class QuadTree {
@@ -22,7 +42,6 @@ public class Problem297 {
 		
 		public QuadTree(String line) {
 			LinkedList<Node> stack = new LinkedList<Node>();
-			Node top = null;
 			
 			for(int i = 0; i < line.length(); ++i) {
 				char ch = line.charAt(i);
@@ -33,56 +52,82 @@ public class Problem297 {
 						root = next;
 					}
 					else {
-						top.children.add(next);
+						stack.peek().children.add(next);
+						if(stack.peek().children.size() == 4) {
+							stack.pop();
+						}
 					}
 					stack.push(next);
-					top = next;
 				}
 				else {
-					top.children.add(next);
-					if(top.children.size() == 4) {
+					if(stack.isEmpty()) {
+						root = new Node(ch);
+						break;
+					}
+					stack.peek().children.add(next);
+					if(stack.peek().children.size() == 4) {
 						stack.pop();
-						top = stack.peek();
 					}
 				}
 			}
 		}
 		
-		public void add(String line) {
-			
+		public void add(QuadTree t) {
+			root.add(t.root);
 		}
 		
 		public int count(Node n, int level) {
 			if(n.type == 'p') {
 				int sum = 0;
+				if(n.children.size() != 4) {
+					System.out.println("level: " + level + " has " + n.children.size() + " nodes");
+				}
 				for(int i = 0; i < 4; ++i)
-					sum += count(n.children.get(i), 4*level);
+					sum += count(n.children.get(i), level+1);
 				return sum;
 			}
+			
 			else if(n.type == 'f') {
-				return 1024 / level;
+				switch(level) {
+				case 0:
+					return 1024;
+				case 1:
+					return 256;
+				case 2:
+					return 64;
+				case 3:
+					return 16;
+				case 4:
+					return 4;
+				case 5:
+					return 1;
+				}
+				
+				throw new RuntimeException("Wrong"); //should never reach here
 			}
+			
 			return 0;
 		}
 		
 		public int count() {
-			return count(root, 1);
+			return count(root, 0);
 		}
 	}
 	
 	public static void main(String[] args) throws Exception {
-//		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		BufferedReader br = new BufferedReader(new FileReader("input/vol2/BinaryTrees/Problem297.in"));
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+//		BufferedReader br = new BufferedReader(new FileReader("input/vol2/BinaryTrees/Problem297.in"));
 		int N = Integer.parseInt(br.readLine().trim());
 		String line;
 		
 		for(int i = 0; i < N; ++i) {
 			line = br.readLine().trim();
 			QuadTree qt = new QuadTree(line);
+//			System.out.println("DEBUG: " + qt.count());
 			line = br.readLine().trim();
-			qt.add(line);
+			QuadTree qt2 = new QuadTree(line);
+			qt.add(qt2);
 			System.out.println("There are " + qt.count() + " black pixels.");
 		}
 	}
 }
-
