@@ -68,7 +68,7 @@ public class Problem548 {
 		
 		public Tree(ArrayList<Long> inorder, ArrayList<Long> postorder) {
 			root = build(inorder, postorder, 0);
-//			Node.inorder(root);
+			Node.inorder(root); System.out.println();
 		}
 		
 		public long getSmallest() {
@@ -101,8 +101,8 @@ public class Problem548 {
 		while((line1 = br.readLine()) != null) {
 			line1 = line1.trim();
 			line2 = br.readLine().trim();
-//			System.out.println(line1);
-//			System.out.println(line2);
+			System.out.println(line1);
+			System.out.println(line2);
 			System.out.println(solve(line1, line2));
 			//System.out.println(solve(line1, line2));
 		}
