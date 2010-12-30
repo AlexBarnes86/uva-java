@@ -3,97 +3,81 @@ package vol2.BinaryTrees;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Problem548 {
+
 	static class Node {
 		public long val;
-		public Node left, right;
 		public long psum;
+		public Node left, right;
 		
 		public Node(long val) {
 			this.val = val;
 		}
 		
-		private static void inorder(Node n, StringBuilder sb) {
-			if(n == null)
-				return;
-			inorder(n.left, sb);
-			sb.append(n.val + " ");
-			inorder(n.right, sb);
-		}
-		
 		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			inorder(this, sb);
-			return sb.toString();
+			return val+"";
 		}
 		
-		private static void getLeaves(Node n, LinkedList<Node> leaves, long sum) {
+		public static void inorder(Node n) {
 			if(n == null)
 				return;
-			
-			n.psum = sum+n.val;
-			
-			getLeaves(n.left, leaves, n.psum);
-			if(n.left == null && n.right == null)
-				leaves.add(n);
-			getLeaves(n.right, leaves, n.psum);
-		}
-		
-		public LinkedList<Node> getLeaves() {
-			LinkedList<Node> ll = new LinkedList<Node>();
-			getLeaves(this, ll, 0);
-			return ll;
-		}
-		
-		public Node largestPathLeaf() {
-			LinkedList<Node> leaves = getLeaves();
-			Node min = leaves.get(0);
-			//System.out.print("leaves: ");
-			for(Node n : leaves) {
-				//System.out.print(n.val + ":" + n.psum + " ");
-				if(n.psum < min.psum)
-					min = n;
-			}
-			//System.out.println();
-			return min;
+			inorder(n.left);
+			System.out.print(n.val + " ");
+			inorder(n.right);
 		}
 	}
 	
 	static class Tree {
+		long smallest = Long.MAX_VALUE;
+		long smallest_val;
 		Node root;
 		
-		private Node build(List<Long> inorder, List<Long> postorder) {
-			if(postorder.isEmpty())
+		private Node build(List<Long> inorder, List<Long> postorder, long sum) {
+			if(postorder.size() == 0)
 				return null;
 			
-			Node node = new Node(postorder.get(postorder.size()-1));
-			if(inorder.size() == 1)
-				return node;
+			long val = postorder.get(postorder.size()-1);
+			int idx = inorder.indexOf(val);
 			
-			int idx = inorder.indexOf(node.val);
+//			System.out.println("inorder: " + inorder);
+//			System.out.println("postorder: " + postorder);
+//			System.out.println("val: " + val + " idx: " + idx);
 			
-			if(idx == -1 || idx+1 > inorder.size())
-				return node;
+			if(idx < 0)
+				return null;
 			
-			List<Long> left = inorder.subList(0, idx);
-			List<Long> right = inorder.subList(idx+1, inorder.size());
+			Node n = new Node(val);
+			n.psum = sum + val;
 			
-			node.left = build(left, postorder.subList(0, idx));
-			node.right = build(right, postorder.subList(idx, postorder.size()-1));
+			n.left = build(inorder.subList(0, idx), postorder.subList(0, idx), n.psum);
+			n.right = build(inorder.subList(idx+1, inorder.size()), postorder.subList(idx, postorder.size()-1), n.psum);
 			
-			return node;
+			if(n.left == null && n.right == null) { //leaf node
+				if(n.psum < smallest) {
+					smallest = n.psum;
+					smallest_val = n.val;
+				}
+			}
+			
+			return n;
 		}
 		
-		public Tree(LinkedList<Long> inorder, LinkedList<Long> postorder) {
-			root = build(inorder, postorder);
+		public Tree(ArrayList<Long> inorder, ArrayList<Long> postorder) {
+			root = build(inorder, postorder, 0);
+//			Node.inorder(root);
+		}
+		
+		public long getSmallest() {
+			return smallest_val;
 		}
 	}
 	
-	private static LinkedList<Long> getList(String str) {
-		LinkedList<Long> list = new LinkedList<Long>();
+	private static ArrayList<Long> getList(String str) {
+		ArrayList<Long> list = new ArrayList<Long>();
 		String [] tokens = str.split("\\s+");
 		for(String token : tokens) {
 			list.add(Long.parseLong(token));
@@ -102,22 +86,26 @@ public class Problem548 {
 	}
 	
 	public static long solve(String inorder, String postorder) {
-		LinkedList<Long> inList = getList(inorder), postList = getList(postorder);
+		ArrayList<Long> inList = getList(inorder), postList = getList(postorder);
 
 		Tree t = new Tree(inList, postList);
-		//System.out.println(t.root);
-		return t.root.largestPathLeaf().val;
+		return t.getSmallest();
 	}
 	
 	public static void main(String[] args) throws Exception {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-//		BufferedReader br = new BufferedReader(new FileReader("input/vol2/BinaryTrees/Problem548.in"));
+		long start = System.currentTimeMillis();
+//		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedReader br = new BufferedReader(new FileReader("input/vol2/BinaryTrees/Problem548-evil.in"));
 		String line1 = "";
 		String line2 = "";
 		while((line1 = br.readLine()) != null) {
 			line1 = line1.trim();
 			line2 = br.readLine().trim();
+//			System.out.println(line1);
+//			System.out.println(line2);
 			System.out.println(solve(line1, line2));
+			//System.out.println(solve(line1, line2));
 		}
+		System.out.println("Real time: " + (System.currentTimeMillis()-start) + "ms");
 	}
 }
