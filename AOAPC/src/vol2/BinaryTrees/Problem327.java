@@ -5,7 +5,7 @@ import java.io.InputStreamReader;
 import java.io.FileReader;
 import java.util.LinkedList;
 
-public class Problem327 {		
+public class Problem327 {
 	public static void solve(String line) {
 		boolean [] postAdd = new boolean[26];
 		boolean [] postSub = new boolean[26];
@@ -28,6 +28,8 @@ public class Problem327 {
 			if(ch == '-') {
 				if(stack.peek() != null && stack.peek() == '-') {
 					stack.pop();
+					if(stack.peek() != null && stack.peek() == ' ')
+						stack.pop();
 					if(stack.peek() != null && stack.peek() >= 'a' && stack.peek() <= 'z')
 						postSub[stack.pop()-'a'] = true;
 					else
@@ -39,6 +41,8 @@ public class Problem327 {
 			else if(ch == '+') {
 				if(stack.peek() != null && stack.peek() == '+') {
 					stack.pop();
+					if(stack.peek() != null && stack.peek() == ' ')
+						stack.pop();
 					if(stack.peek() != null && stack.peek() >= 'a' && stack.peek() <= 'z')
 						postAdd[stack.pop()-'a'] = true;
 					else
@@ -50,6 +54,9 @@ public class Problem327 {
 			else {
 				int pos = ch - 'a';
 				vars[pos] = pos+1;
+				
+				if(stack.peek() != null && stack.peek() == ' ')
+					stack.pop();
 				
 				if(stack.peek() != null && stack.peek() == 'U') {
 					vars[pos]++;
