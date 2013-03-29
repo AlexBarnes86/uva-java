@@ -1,4 +1,4 @@
-package com.toastedbits.uva.contestvolumes.cxix;
+package cxix;
 
 import java.io.IOException;
 import java.util.BitSet;

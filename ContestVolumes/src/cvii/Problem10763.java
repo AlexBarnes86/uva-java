@@ -1,4 +1,4 @@
-package com.toastedbits.uva.contestvolumes.cvii;
+package cvii;
 
 import java.util.HashMap;
 import java.util.Map;

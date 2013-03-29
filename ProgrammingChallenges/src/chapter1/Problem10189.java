@@ -1,4 +1,4 @@
-package com.toastedbits.uva.programmingchallenges.chapter1;
+package chapter1;
 
 import java.util.Scanner;
 
