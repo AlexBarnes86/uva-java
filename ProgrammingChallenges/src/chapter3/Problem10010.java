@@ -1,5 +1,5 @@
 //correct
-package vol1.String;
+package chapter3;
 
 import java.util.*;
 
