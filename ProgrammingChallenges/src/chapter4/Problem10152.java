@@ -1,11 +1,10 @@
 package chapter4;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-public class Problem10152 {	
+public class Problem10152 {
 	private static ArrayList<String> solve(ArrayList<String> orig, ArrayList<String> ordered) {
 		ArrayList<String> sol = new ArrayList<String>();
 		for(int i = ordered.size() - 1; i > 0; --i) {
