@@ -2,8 +2,8 @@ package chapter7;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
@@ -12,38 +12,63 @@ public class Problem10139 {
 	public static final boolean DEBUG_FILE = false;
 	public static final Scanner sc = getScanner();
 	
-	private static Map<Integer, Integer> primeFactorization(int n) {
-		Map<Integer, Integer> primes = new HashMap<Integer, Integer>();
-		int k = n;
+	private static class Factor {
+		public long base;
+		public long exponent;
 		
-		for(int i = 2; i < k; ++i) {
+		public Factor(long base, long exponent) {
+			this.base = base;
+			this.exponent = exponent;
+		}
+	}
+	
+	private static List<Factor> primeFactorization(long n) {
+		List<Factor> primes = new ArrayList<Factor>();
+		
+		long k = n;
+		long ct = 0;
+		long end = (long)Math.sqrt(k)+1;
+		
+		for(long i = 2; i < end && k != 1; ++i) {
+			ct = 0;
+			
 			while(k%i == 0) {
-				if(primes.containsKey(i)) {
-					primes.put(i, primes.get(i)+1);
-				} else {
-					primes.put(i, 1);
-				}
+				ct++;
 				k/=i;
+			}
+			
+			if(ct != 0) {
+				primes.add(new Factor(i, ct));
 			}
 		}
 		
 		if(k != 1) {
-			primes.put(k, 1);
+			primes.add(new Factor(k, 1));
 		}
 		
 		return primes;
 	}
 	
-	private static boolean dividesFactorial(int n, int m) {
-		Map<Integer, Integer> factors = primeFactorization(m);
+	private static boolean dividesFactorial(long n, long m) {
+		List<Factor> factors = primeFactorization(m);
 		
-		for(Map.Entry<Integer, Integer> entry : factors.entrySet()) {
-			if(entry.getValue() > (n / entry.getKey())) {
+		for(Factor factor : factors) {
+			if(factor.exponent > getPowers(n, factor.base)) {
 				return false;
 			}
 		}
 		
 		return true;
+	}
+	
+	static int getPowers (long n, long p) {
+		int res = 0;
+		
+		for (long power = p; power <= n; power *= p) {
+			res += n / power;
+		}
+		
+		return res;
 	}
 	
 	public static void main(String[] args) {
@@ -52,10 +77,10 @@ public class Problem10139 {
 		while(sc.hasNext()) {
 			String line = sc.nextLine();
 			StringTokenizer st = new StringTokenizer(line);
-			int n = Integer.parseInt(st.nextToken());
-			int m = Integer.parseInt(st.nextToken());
+			long n = Integer.parseInt(st.nextToken());
+			long m = Integer.parseInt(st.nextToken());
 			
-			if(m != 0 && dividesFactorial(n, m)) {
+			if(m != 0 && (n >= m || dividesFactorial(n, m))) {
 				pw.println(m + " divides " + n + "!");
 			} else {
 				pw.println(m + " does not divide " + n + "!");
