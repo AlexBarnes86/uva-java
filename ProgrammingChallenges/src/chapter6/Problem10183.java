@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
-public class Problem10138 {
+public class Problem10183 {
 	public static final boolean DEBUG = false;
 	public static final boolean DEBUG_FILE = false;
 	public static final Scanner sc = getScanner();
@@ -80,7 +80,7 @@ public class Problem10138 {
 	public static Scanner getScanner() {
 		try {
 			if(DEBUG_FILE) {
-				String fileName = "ProgrammingChallenges/input/chapter6/Problem10138.in";
+				String fileName = "ProgrammingChallenges/input/chapter6/Problem10183.in";
 				Scanner sc = new Scanner(new File(fileName));
 				System.out.println("Reading from: " + fileName);
 				return sc;

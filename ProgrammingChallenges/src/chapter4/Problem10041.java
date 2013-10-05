@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
-public class Problem10411 {
+public class Problem10041 {
 	public static final boolean DEBUG = false;
 	public static final boolean DEBUG_FILE = false;
 	
@@ -27,7 +27,7 @@ public class Problem10411 {
 	public static Scanner getScanner() {
 		try {
 			if(DEBUG_FILE) {
-				String fileName = "ProgrammingChallenges/input/chapter4/Problem10411.in";
+				String fileName = "ProgrammingChallenges/input/chapter4/Problem10041.in";
 				Scanner sc = new Scanner(new File(fileName));
 				System.out.println("Reading from: " + fileName);
 				return sc;
