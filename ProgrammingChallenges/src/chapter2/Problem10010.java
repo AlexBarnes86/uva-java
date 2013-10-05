@@ -1,4 +1,4 @@
-package vol1.String;
+package chapter2;
 
 import java.util.*;
 
